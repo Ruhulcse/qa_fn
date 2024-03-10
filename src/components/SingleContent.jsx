@@ -1,50 +1,43 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
-import { useState } from "react";
 import { BiSolidDownArrowCircle, BiSolidUpArrowCircle } from "react-icons/bi";
-import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import baseUrl from "../config/config";
 
-function SingleContent({ singleQuestion }) {
-  const [likeCount, setLikeCount] = useState(0);
-
-  const notify = (msg) => toast(`${msg}`);
+function SingleContent({ singleQuestion, fetchQuestions }) {
   const getData = async () => {
     const res = await axios.get("https://api.ipify.org/?format=json");
     return res.data.ip;
   };
 
   const handleUpVote = async (question) => {
-    const ipAddress = await getData();
-    const payload = {
-      voteType: "upvote",
-      voterIP: ipAddress,
-    };
-    setLikeCount(likeCount + 1);
-    const { data } = await axios.post(
-      `${baseUrl}/questions/${question._id}/vote`,
-      payload
-    );
-    notify(data);
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
+    try {
+      const ipAddress = await getData();
+      const payload = {
+        voteType: "upvote",
+        voterIP: ipAddress,
+      };
+      await axios.post(`${baseUrl}/questions/${question._id}/vote`, payload);
+      fetchQuestions(); // Fetch the latest questions data after voting
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   const handleDownVote = async (question) => {
-    const ipAddress = await getData();
-    const payload = {
-      voteType: "downvote",
-      voterIP: ipAddress,
-    };
-    const { data } = await axios.post(
-      `${baseUrl}/questions/${question._id}/vote`,
-      payload
-    );
-    setTimeout(() => {
-      window.location.reload();
-    }, 2000);
+    try {
+      const ipAddress = await getData();
+      const payload = {
+        voteType: "downvote",
+        voterIP: ipAddress,
+      };
+      await axios.post(`${baseUrl}/questions/${question._id}/vote`, payload);
+      fetchQuestions(); // Fetch the latest questions data after voting
+    } catch (error) {
+      console.log(error);
+    }
   };
+
   return (
     <div>
       <div className="flex gap-3">
@@ -56,19 +49,20 @@ function SingleContent({ singleQuestion }) {
           <p className="text-start">{singleQuestion.answer}</p>
         </div>
       </div>
-      <div className="items-start btn btn-ghost flex w-44 mt-4">
+      <div className="flex items-center gap-4 mt-4">
         <button
-          className="flex justify-center items-center"
+          className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
           onClick={() => handleUpVote(singleQuestion)}
         >
-          <BiSolidUpArrowCircle className="text-3xl"></BiSolidUpArrowCircle>
-          <p className="text-2xl">{singleQuestion.total_vote}</p>
+          <BiSolidUpArrowCircle className="text-3xl" />
+          <span className="text-xl"></span>
         </button>
+        <h1>{singleQuestion.total_vote}</h1>
         <button
-          className="flex justify-center items-center"
+          className="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out"
           onClick={() => handleDownVote(singleQuestion)}
         >
-          <BiSolidDownArrowCircle className="text-3xl"></BiSolidDownArrowCircle>
+          <BiSolidDownArrowCircle className="text-3xl" />
         </button>
       </div>
     </div>
