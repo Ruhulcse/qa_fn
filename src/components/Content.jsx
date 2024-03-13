@@ -6,9 +6,16 @@ import SingleContent from "./SingleContent";
 const Content = () => {
   const [questions, setQuestions] = useState([]);
 
-  const fetchQuestions = useCallback(() => {
+  const getData = async () => {
+    const res = await axios.get("https://api.ipify.org/?format=json");
+    return res.data.ip;
+  };
+
+  const fetchQuestions = useCallback(async () => {
     console.log("function called ");
-    axios.get(`${baseUrl}/getquestion`).then((response) => {
+    const ipAddress = await getData();
+    console.log(ipAddress);
+    axios.get(`${baseUrl}/getquestion?ip=${ipAddress}`).then((response) => {
       console.log("result ", response);
       const result = response.data.data.Question;
       setQuestions(result);
