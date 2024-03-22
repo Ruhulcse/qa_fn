@@ -1,16 +1,20 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
+import { useState } from "react";
 import { BiSolidDownArrowCircle, BiSolidUpArrowCircle } from "react-icons/bi";
 import "react-toastify/dist/ReactToastify.css";
 import baseUrl from "../config/config";
 
 function SingleContent({ singleQuestion, fetchQuestions }) {
+  const [isVoting, setIsVoting] = useState(false);
+
   const getData = async () => {
     const res = await axios.get("https://api.ipify.org/?format=json");
     return res.data.ip;
   };
 
   const handleUpVote = async (question) => {
+    setIsVoting(true);
     try {
       const ipAddress = await getData();
       const payload = {
@@ -21,10 +25,13 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
       fetchQuestions(); // Fetch the latest questions data after voting
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsVoting(false); // Re-enable voting buttons
     }
   };
 
   const handleDownVote = async (question) => {
+    setIsVoting(true);
     try {
       const ipAddress = await getData();
       const payload = {
@@ -35,6 +42,8 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
       fetchQuestions(); // Fetch the latest questions data after voting
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsVoting(false); // Re-enable voting buttons
     }
   };
 
@@ -51,6 +60,7 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
       </div>
       <div className="flex items-center gap-4 mt-4">
         <button
+          disabled={isVoting}
           className={`flex items-center justify-center gap-2 ${
             singleQuestion.upvote
               ? "bg-green-400"
@@ -63,6 +73,7 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
         </button>
         <h1>{singleQuestion.total_vote}</h1>
         <button
+          disabled={isVoting}
           className={`flex items-center justify-center gap-2 ${
             singleQuestion.downvote
               ? "bg-red-400"
