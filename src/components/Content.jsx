@@ -27,10 +27,15 @@ const Content = () => {
   }, [fetchQuestions]);
 
   return (
-    <div className="min-h-screen bg-slate-200">
+    <div className="min-h-screen bg-[#95A5A6]">
+      <div>
+        <h1 className="uppercase text-4xl pt-20 pb-10 font-bold text-white flex justify-center items-center">
+          Demo title
+        </h1>
+      </div>
       <div className="w-full max-w-6xl mx-auto">
         {questions.map((singleQuestion) => (
-          <div key={singleQuestion._id} className="card w-full p-3 mt-6">
+          <div key={singleQuestion._id} className="card w-full p-3">
             <SingleContent
               singleQuestion={singleQuestion}
               fetchQuestions={fetchQuestions}
