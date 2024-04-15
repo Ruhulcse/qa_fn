@@ -1,24 +1,48 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { TbArrowBigDown, TbArrowBigUp } from "react-icons/tb";
 import "react-toastify/dist/ReactToastify.css";
 import baseUrl from "../config/config";
 
 function SingleContent({ singleQuestion, fetchQuestions }) {
-  const [isVoting, setIsVoting] = useState(false);
-  const [bgColor, setBgColor] = useState("bg-slate-500");
-  const [activeButton, setActiveButton] = useState(null);
+  const determineInitialBgColor = () => {
+    console.log("function called");
+    if (singleQuestion.upvote == true) {
+      return "bg-green-600";
+    } else if (singleQuestion.downvote == true) {
+      return "bg-red-600";
+    }
+    return "bg-slate-500";
+  };
 
+  const determineActiveStatus = () => {
+    if (singleQuestion.upvote == true) {
+      return "up";
+    } else if (singleQuestion.downvote) {
+      return "down";
+    } else {
+      return null;
+    }
+  };
+
+  const [isVoting, setIsVoting] = useState(false);
+  const [bgColor, setBgColor] = useState(determineInitialBgColor());
+  const [activeButton, setActiveButton] = useState(determineActiveStatus);
   const getData = async () => {
     const res = await axios.get("https://api.ipify.org/?format=json");
     return res.data.ip;
   };
-
   const handleUpVote = async (question) => {
     setIsVoting(true);
-    setActiveButton("up");
-    setBgColor("bg-green-600");
+    if (activeButton === "up") {
+      setActiveButton(null);
+      setBgColor("bg-slate-500");
+    } else {
+      setActiveButton("up");
+      setBgColor("bg-green-600");
+    }
+
     try {
       const ipAddress = await getData();
       const payload = {
@@ -36,8 +60,13 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
 
   const handleDownVote = async (question) => {
     setIsVoting(true);
-    setActiveButton("down");
-    setBgColor("bg-red-600");
+    if (activeButton === "down") {
+      setActiveButton(null);
+      setBgColor("bg-slate-500");
+    } else {
+      setActiveButton("down");
+      setBgColor("bg-red-600");
+    }
 
     try {
       const ipAddress = await getData();
@@ -57,9 +86,9 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
   return (
     <div>
       <div>
-        <div className="flex  gap-4  items-center">
+        <div className="flex  gap-6 mt-4 ">
           <div
-            className={`flex items-center ${bgColor} w-[20%] md:w-[15%] lg:w-[10%] justify-between text-white    rounded-full`}
+            className={`flex items-center ${bgColor} w-[20%] md:w-[15%] lg:w-[10%] justify-between text-white  mt-2   rounded-full`}
           >
             <button
               disabled={isVoting}
@@ -89,14 +118,16 @@ function SingleContent({ singleQuestion, fetchQuestions }) {
           </div>
           <div>
             {" "}
-            <title className="card-title text-start text-white">
+            <title className="card-title text-start text-4xl text-white">
               {singleQuestion.question}
             </title>
           </div>
         </div>
-        <p className="text-start  pl-[22%] md:pl-[17%] lg:pl-[12%] ">
-          {singleQuestion.answer}
-        </p>
+
+        <div className="text-start  pl-[22%] md:pl-[17%] lg:pl-[12%] ">
+          <p className="text-white">{singleQuestion.answer}</p>
+          <p className="pl-4 mt-4 text-sm">{singleQuestion.explaination}</p>
+        </div>
       </div>
     </div>
   );
